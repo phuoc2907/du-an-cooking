@@ -1,0 +1,19 @@
+# Đây là file docker-compose.yml
+
+# Phiên bản của docker-compose
+version: '3.8'
+
+# Định nghĩa các "dịch vụ" (services) của bạn
+services:
+  # Dịch vụ 1: Đặt tên là 'web' (bạn có thể đặt tên khác)
+  web:
+    # Tự động xây dựng (build) hình ảnh
+    # từ thư mục hiện tại (nơi có Dockerfile)
+    build: .
+    # Ánh xạ (map) cổng:
+    # Lấy cổng 5000 bên TRONG container (mà Flask đang chạy)
+    # và "nối" nó ra cổng 5000 bên NGOÀI máy tính của bạn
+    ports:
+      - "5000:5000"
+    # Tự động khởi động lại nếu container bị lỗi
+    restart: unless-stopped
