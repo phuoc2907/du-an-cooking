@@ -1,0 +1,10 @@
+# Bỏ qua các file cache của Python
+__pycache__/
+*.pyc
+
+# Bỏ qua các file cấu hình của VSCode
+.vscode/
+
+# Bỏ qua CSDL (chúng ta sẽ build nó bằng setup_database.py)
+# Thường CSDL thật sẽ không đẩy lên Git
+recipes.db
