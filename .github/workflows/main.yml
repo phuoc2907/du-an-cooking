@@ -1,19 +1,16 @@
 # Đây là file .github/workflows/main.yml
 # Tên của quy trình làm việc
-name: Python Docker CI
+name: Python Docker CI (Build and Push)
 
 # 1. KÍCH HOẠT (Trigger):
-# Chạy quy trình này khi nào?
+# Chạy khi có ai đó "push" code lên nhánh "main"
 on:
-  push: # Khi có ai đó "push" code
-    branches: [ main, master ] # Lên nhánh "main" hoặc "master"
-  pull_request: # Hoặc khi có ai đó tạo "pull request"
-    branches: [ main, master ]
+  push:
+    branches: [ main ]
 
 # 2. CÔNG VIỆC (Jobs):
 jobs:
-  # Định nghĩa một công việc tên là "build"
-  build:
+  build_and_push:
     # Chạy công việc này trên một máy ảo Ubuntu (Linux) của GitHub
     runs-on: ubuntu-latest
 
@@ -23,15 +20,27 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # Bước 2: Thiết lập Docker (để máy ảo hiểu lệnh docker)
+      # Bước 2: Login vào Docker Hub (SỬ DỤNG BÍ MẬT)
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          # Nó sẽ tự động lấy username bạn đã lưu
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          # Nó sẽ tự động lấy token bạn đã lưu
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          
+      # Bước 3: Thiết lập Docker Buildx (công cụ build)
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
-      # Bước 3: Build cái container Docker
-      # (Giống hệt lệnh 'docker-compose up --build' nhưng dùng 1 lệnh docker)
-      - name: Build the Docker image
-        # Nó sẽ đọc 'Dockerfile' và xây dựng hình ảnh
-        run: docker build . --file Dockerfile --tag my-image-name:latest
-
-      # (Trong dự án thật, bước 4 sẽ là 'docker push' lên Docker Hub
-      # và bước 5 là 'deploy' lên server Cloud, nhưng chúng ta dừng ở đây)
+      # Bước 4: Build và Push (2-trong-1)
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./Dockerfile
+          # Đẩy (push) image lên Docker Hub
+          push: true
+          # Đặt tên cho image: ten-dang-nhap/ten-repo:latest
+          # (LƯU Ý: GitHub sẽ tự động lấy tên từ secret của bạn)
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/du-an-cooking:latest
